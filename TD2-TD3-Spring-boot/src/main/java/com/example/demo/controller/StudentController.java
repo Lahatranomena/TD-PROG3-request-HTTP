@@ -35,7 +35,7 @@ public class StudentController {
     }
 
     @GetMapping("/students")
-    public ResponseEntity<?> getStudents(
+    public ResponseEntity<Object> getStudents(
             @RequestHeader(value = "Accept", required = false) String accept) {
         try {
             if (accept == null || accept.isEmpty()) {
