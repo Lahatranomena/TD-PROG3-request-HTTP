@@ -22,7 +22,7 @@ public class WelcomeController {
         if (name == null || name.isEmpty()) {
             return ResponseEntity
                     .status(HttpStatus.BAD_REQUEST)
-                    .body("Paramètre 'name' manquant");
+                    .body("'name' parameter missing");
         }
 
         return ResponseEntity

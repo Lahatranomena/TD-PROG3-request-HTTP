@@ -1,7 +1,9 @@
 package com.example.demo.controller;
 
 import com.example.demo.entity.Student;
+import com.example.demo.exception.BadRequestException;
 import com.example.demo.service.StudentService;
+import com.example.demo.validator.StudentValidator;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -11,20 +13,32 @@ import java.util.List;
 
 @RestController
 public class StudentController {
-    private final StudentService studentService;
 
-    public StudentController(StudentService studentService) {
+    private final StudentService studentService;
+    private final StudentValidator studentValidator;
+
+    public StudentController(StudentService studentService,
+                             StudentValidator studentValidator) {
         this.studentService = studentService;
+        this.studentValidator = studentValidator;
     }
 
     @PostMapping("/students")
-    public ResponseEntity<List<Student>> addStudents(
+    public ResponseEntity<?> addStudents(
             @RequestBody List<Student> newStudents) {
         try {
+            studentValidator.validate(newStudents);
+
             List<Student> result = studentService.addStudents(newStudents);
             return ResponseEntity
                     .status(HttpStatus.CREATED)
                     .body(result);
+
+        } catch (BadRequestException e) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -36,10 +50,10 @@ public class StudentController {
     public ResponseEntity<Object> getStudents(
             @RequestHeader(value = "Accept", required = false) String accept) {
         try {
-            if (accept == null || accept.isEmpty()) {
+            if (accept == null || accept.isBlank()) {
                 return ResponseEntity
                         .status(HttpStatus.BAD_REQUEST)
-                        .body("Entête 'Accept' manquante");
+                        .body("Missinge 'Accept' header");
             }
 
             if (accept.equals("text/plain")) {
@@ -58,13 +72,12 @@ public class StudentController {
 
             return ResponseEntity
                     .status(HttpStatus.NOT_IMPLEMENTED)
-                    .body("Format non supporté");
+                    .body("Format not supported");
 
         } catch (Exception e) {
             return ResponseEntity
                     .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Erreur serveur");
+                    .body("Error server");
         }
     }
-
 }
