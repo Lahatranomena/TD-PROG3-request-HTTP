@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class StudentService {
@@ -20,14 +21,8 @@ public class StudentService {
     }
 
     public String getStudentNames() {
-        StringBuilder names = new StringBuilder();
-        for (Student student : students) {
-            names.append(student.getFirstName())
-                    .append(" ")
-                    .append(student.getLastName())
-                    .append("\n");
-        }
-        return names.toString();
+        return students.stream()
+                .map(s -> s.getFirstName() + " " + s.getLastName())
+                .collect(Collectors.joining("\n"));
     }
-
 }
